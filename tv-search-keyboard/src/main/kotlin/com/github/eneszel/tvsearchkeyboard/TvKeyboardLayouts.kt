@@ -39,15 +39,16 @@ internal fun rowsFor(layout: TvSearchKeyboardLayout): KeyRows = when (layout) {
         ),
     )
 
+    // Seven columns keep the full alphabet and digits in six rows, the same height as
+    // the alphabetical layout, so the action row still fits a 1080p television.
     TvSearchKeyboardLayout.Turkish -> KeyRows(
-        columns = 6,
+        columns = 7,
         rows = listOf(
-            listOf(latin("a"), latin("b"), latin("c"), tr("ç", "Ç"), latin("d"), latin("e")),
-            listOf(latin("f"), latin("g"), tr("ğ", "Ğ"), latin("h"), tr("ı", "I"), tr("i", "İ")),
-            listOf(latin("j"), latin("k"), latin("l"), latin("m"), latin("n"), latin("o")),
-            listOf(tr("ö", "Ö"), latin("p"), latin("r"), latin("s"), tr("ş", "Ş"), latin("t")),
-            listOf(latin("u"), tr("ü", "Ü"), latin("v"), latin("y"), latin("z")),
-            latinRow("123456"),
+            listOf(latin("a"), latin("b"), latin("c"), tr("ç", "Ç"), latin("d"), latin("e"), latin("f")),
+            listOf(latin("g"), tr("ğ", "Ğ"), latin("h"), tr("ı", "I"), tr("i", "İ"), latin("j"), latin("k")),
+            listOf(latin("l"), latin("m"), latin("n"), latin("o"), tr("ö", "Ö"), latin("p"), latin("r")),
+            listOf(latin("s"), tr("ş", "Ş"), latin("t"), latin("u"), tr("ü", "Ü"), latin("v"), latin("y")),
+            listOf(latin("z"), latin("1"), latin("2"), latin("3"), latin("4"), latin("5"), latin("6")),
             latinRow("7890"),
         ),
     )

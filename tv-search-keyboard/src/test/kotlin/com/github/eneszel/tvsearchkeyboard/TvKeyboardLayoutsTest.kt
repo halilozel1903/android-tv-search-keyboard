@@ -26,7 +26,10 @@ class TvKeyboardLayoutsTest {
 
     @Test
     fun turkishAlphabetKeepsDottedAndDotlessIInDictionaryOrder() {
-        val flat = rowsFor(TvSearchKeyboardLayout.Turkish).rows.flatten()
+        val rows = rowsFor(TvSearchKeyboardLayout.Turkish)
+        assertEquals(7, rows.columns)
+        assertEquals(6, rows.rows.size)
+        val flat = rows.rows.flatten()
         val letters = flat.take(29).joinToString("") { it.lower }
         assertEquals("abcçdefgğhıijklmnoöprsştuüvyz", letters)
         assertEquals("İ", flat.single { it.lower == "i" }.upper)
