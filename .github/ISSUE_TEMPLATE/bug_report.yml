@@ -25,6 +25,6 @@ body:
     attributes:
       label: Versions
       description: Library version, Compose BOM, and the device or emulator system image.
-      placeholder: tv-search-keyboard 0.1.0, Compose BOM 2026.09.00, Android TV API 36
+      placeholder: android-tv-search-keyboard 1.0.0, Compose BOM 2026.09.00, Android TV API 36
     validations:
       required: true

@@ -4,9 +4,15 @@ A Jetpack Compose keyboard for a 10-foot search screen. It follows the shape of 
 
 Focus scales the key and turns it light, with dark text. Delete is a key. The system Back key is left alone.
 
+![Alphabetical search for Dune, with A focused and Dune: Part Two beside the keys](docs/images/search-alphabetical.png)
+
+![QWERTY search for Andor, with Q focused](docs/images/search-qwerty.png)
+
+![Inception matches nothing in the sample catalog](docs/images/search-empty.png)
+
 ## Install
 
-The library is published with [JitPack](https://jitpack.io). Add the repository, then depend on the `tv-search-keyboard` module.
+The library is published with [JitPack](https://jitpack.io) from the root project. Add the repository, then depend on the repository coordinate.
 
 ```kotlin
 // settings.gradle.kts
@@ -21,15 +27,29 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.halilozel1903.android-tv-search-keyboard:tv-search-keyboard:v0.1.0")
+    implementation("com.github.halilozel1903:android-tv-search-keyboard:1.0.0")
 }
 ```
 
 The keyboard types are in the `com.halil.ozel` package. The sample application id is `com.halil.ozel.sample`.
 
-The sample module in this repository depends on the library as a Gradle project, which is the setup to use while you are changing the keyboard itself.
+The sample module in this repository depends on the root project, which is the setup to use while you are changing the keyboard itself.
 
 Requirements: `minSdk` 23, Jetpack Compose (BOM `2026.09.00` or newer), and `androidx.tv:tv-material`.
+
+## Command line
+
+JDK 17 or newer, and an Android SDK. If `ANDROID_HOME` is unset, the build uses `~/Library/Android/sdk` or `~/Android/Sdk` when that directory exists.
+
+```bash
+git clone https://github.com/halilozel1903/android-tv-search-keyboard.git
+cd android-tv-search-keyboard
+./gradlew :assembleRelease
+./gradlew :sample:assembleDebug
+./gradlew :test
+```
+
+`:assembleRelease` builds the library. `:sample:assembleDebug` builds the sample television app. `:test` runs the layout unit tests. The debug APK is `sample/build/outputs/apk/debug/sample-debug.apk`.
 
 ## Use
 
@@ -87,11 +107,7 @@ TvSearchKeyboard(
 
 ## Sample
 
-The `sample` module is an Android TV app with a leanback launcher intent filter. Touch is not required. It shows a mock catalog, filters as you type, and has an empty state when nothing matches.
-
-```bash
-./gradlew :sample:assembleDebug
-```
+The `sample` module is an Android TV app with a leanback launcher intent filter. Touch is not required. It shows a mock catalog, filters as you type, and has an empty state when nothing matches. Build it with `./gradlew :sample:assembleDebug`.
 
 ## License
 
