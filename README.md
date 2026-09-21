@@ -36,6 +36,8 @@ Requirements: `minSdk` 23, Jetpack Compose (BOM `2026.09.00` or newer), and `and
 `query` is controlled by the caller. `onSearch` runs when the viewer presses Search.
 
 ```kotlin
+import com.halil.ozel.TvSearchKeyboard
+
 var query by remember { mutableStateOf("") }
 
 TvSearchKeyboard(
