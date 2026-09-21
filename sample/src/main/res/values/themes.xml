@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Sample" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#07090E</item>
+        <item name="android:colorBackground">#07090E</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">#07090E</item>
+        <item name="android:navigationBarColor">#07090E</item>
+    </style>
+</resources>

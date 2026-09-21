@@ -1,0 +1,22 @@
+[versions]
+agp = "9.4.1"
+kotlin = "2.2.10"
+composeBom = "2026.09.00"
+tvMaterial = "1.1.0"
+tvFoundation = "1.0.0"
+activityCompose = "1.13.0"
+junit = "4.13.2"
+
+[libraries]
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
+tv-foundation = { group = "androidx.tv", name = "tv-foundation", version.ref = "tvFoundation" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
