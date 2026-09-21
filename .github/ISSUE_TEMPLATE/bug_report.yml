@@ -1,0 +1,30 @@
+name: Bug report
+description: Something in the keyboard or the sample does not behave as documented.
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what the keyboard did instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the sample on an Android TV emulator
+        2. Move focus with the D-pad
+        3. Press...
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Library version, Compose BOM, and the device or emulator system image.
+      placeholder: tv-search-keyboard 0.1.0, Compose BOM 2026.09.00, Android TV API 36
+    validations:
+      required: true

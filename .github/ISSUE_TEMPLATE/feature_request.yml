@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest a change to the public keyboard API or the sample.
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard to do with the keyboard today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: The API or behavior you want. Note if it would change a public signature.
+    validations:
+      required: true
