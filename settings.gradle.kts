@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "android-tv-search-keyboard"
-include(":tv-search-keyboard")
 include(":sample")

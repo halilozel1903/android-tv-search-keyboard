@@ -31,4 +31,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Assemble release library and debug sample
-        run: ./gradlew :tv-search-keyboard:assembleRelease :sample:assembleDebug :tv-search-keyboard:test --stacktrace
+        run: ./gradlew :assembleRelease :sample:assembleDebug :test --stacktrace
