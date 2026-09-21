@@ -1,4 +1,4 @@
-package com.github.eneszel.tvsearchkeyboard.sample
+package com.halil.ozel.sample
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,7 @@ import androidx.tv.material3.Glow
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import com.github.eneszel.tvsearchkeyboard.TvSearchKeyboard
+import com.halil.ozel.TvSearchKeyboard
 
 private val Ink = Color(0xFF07090E)
 private val Muted = Color(0xFF9AA3B5)

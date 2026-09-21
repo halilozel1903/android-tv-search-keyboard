@@ -1,4 +1,4 @@
-package com.github.eneszel.tvsearchkeyboard.sample
+package com.halil.ozel.sample
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

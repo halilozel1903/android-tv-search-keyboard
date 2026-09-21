@@ -1,4 +1,4 @@
-package com.github.eneszel.tvsearchkeyboard
+package com.halil.ozel
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat

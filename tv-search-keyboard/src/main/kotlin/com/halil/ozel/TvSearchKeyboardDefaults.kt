@@ -1,4 +1,4 @@
-package com.github.eneszel.tvsearchkeyboard
+package com.halil.ozel
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable

@@ -1,4 +1,4 @@
-package com.github.eneszel.tvsearchkeyboard
+package com.halil.ozel
 
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals

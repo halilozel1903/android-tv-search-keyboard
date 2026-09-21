@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.github.eneszel.tvsearchkeyboard.sample"
+    namespace = "com.halil.ozel.sample"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.github.eneszel.tvsearchkeyboard.sample"
+        applicationId = "com.halil.ozel.sample"
         minSdk = 23
         targetSdk = 36
         versionCode = 1

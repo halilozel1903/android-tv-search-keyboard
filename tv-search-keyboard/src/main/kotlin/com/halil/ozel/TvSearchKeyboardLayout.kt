@@ -1,4 +1,4 @@
-package com.github.eneszel.tvsearchkeyboard
+package com.halil.ozel
 
 /**
  * Key arrangement shown by [TvSearchKeyboard].

@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.github.eneszel.tvsearchkeyboard"
+    namespace = "com.halil.ozel"
     compileSdk = 37
 
     defaultConfig {
