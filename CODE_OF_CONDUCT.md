@@ -17,6 +17,6 @@ Harassment, insults, sexual language or imagery, and publishing someone's privat
 
 ## Enforcement
 
-Report conduct problems to the maintainers by email at enes.ozel@dorukiletisim.com.tr. Reports are reviewed and kept as private as the situation allows. Maintainers may edit or remove comments, and may block people who keep breaking these rules.
+Report conduct problems by opening a GitHub issue on this repository. Reports are reviewed and kept as private as the situation allows. Maintainers may edit or remove comments, and may block people who keep breaking these rules.
 
 This text is adapted from the Contributor Covenant, version 2.1.

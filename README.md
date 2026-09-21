@@ -21,9 +21,11 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.enes-zel.android-tv-search-keyboard:tv-search-keyboard:v0.1.0")
+    implementation("com.github.halilozel1903.android-tv-search-keyboard:tv-search-keyboard:v0.1.0")
 }
 ```
+
+The keyboard types are in the `com.halil.ozel` package. The sample application id is `com.halil.ozel.sample`.
 
 The sample module in this repository depends on the library as a Gradle project, which is the setup to use while you are changing the keyboard itself.
 
