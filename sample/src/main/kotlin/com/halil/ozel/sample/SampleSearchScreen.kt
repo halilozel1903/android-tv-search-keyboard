@@ -30,6 +30,7 @@ import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.halil.ozel.TvSearchKeyboard
+import com.halil.ozel.TvSearchKeyboardLayout
 
 private val Ink = Color(0xFF07090E)
 private val Muted = Color(0xFF9AA3B5)
@@ -72,8 +73,11 @@ private val Catalog = listOf(
 )
 
 @Composable
-fun SampleSearchScreen() {
-    var query by remember { mutableStateOf("") }
+fun SampleSearchScreen(
+    initialQuery: String = "",
+    initialLayout: TvSearchKeyboardLayout = TvSearchKeyboardLayout.Alphabetical,
+) {
+    var query by remember { mutableStateOf(initialQuery) }
     var submitted by remember { mutableStateOf<String?>(null) }
     var voiceNote by remember { mutableStateOf(false) }
 
@@ -98,6 +102,7 @@ fun SampleSearchScreen() {
                 .padding(horizontal = 48.dp, vertical = 20.dp),
         ) {
             TvSearchKeyboard(
+                layout = initialLayout,
                 query = query,
                 onQueryChange = { next ->
                     query = next
