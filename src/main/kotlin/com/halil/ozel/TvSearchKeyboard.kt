@@ -564,6 +564,7 @@ private fun ActionRow(
     ) {
         SelectableActionKey(
             label = shiftLabel,
+            icon = if (shifted) KeyboardIcons.ShiftOn else KeyboardIcons.Shift,
             selected = shifted,
             onClick = onShift,
             modifier = Modifier
@@ -574,6 +575,7 @@ private fun ActionRow(
         )
         ActionKey(
             label = spaceLabel,
+            icon = KeyboardIcons.Space,
             onClick = onSpace,
             modifier = Modifier
                 .weight(2.4f)
@@ -583,6 +585,7 @@ private fun ActionRow(
         )
         ActionKey(
             label = deleteLabel,
+            icon = KeyboardIcons.Backspace,
             onClick = onDelete,
             modifier = Modifier
                 .weight(1.25f)
@@ -658,11 +661,11 @@ private fun ActionKey(
     colors: TvSearchKeyboardColors,
     shapes: TvSearchKeyboardShapes,
     shape: Shape = shapes.key,
-    fontSizeSp: Int = 16,
+    icon: ImageVector? = null,
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { contentDescription = label },
         shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = colors.actionContainer,
@@ -692,21 +695,14 @@ private fun ActionKey(
             pressedGlow = Glow.None,
         ),
     ) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = label,
-                fontSize = fontSizeSp.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = FontFamily.SansSerif,
-                maxLines = 1,
-            )
-        }
+        ActionKeyContent(label = label, icon = icon)
     }
 }
 
 @Composable
 private fun SelectableActionKey(
     label: String,
+    icon: ImageVector,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier,
@@ -716,7 +712,7 @@ private fun SelectableActionKey(
     Surface(
         selected = selected,
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { contentDescription = label },
         shape = SelectableSurfaceDefaults.shape(shape = shapes.key),
         colors = SelectableSurfaceDefaults.colors(
             containerColor = colors.actionContainer,
@@ -758,7 +754,20 @@ private fun SelectableActionKey(
             pressedSelectedGlow = Glow.None,
         ),
     ) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        ActionKeyContent(label = label, icon = icon)
+    }
+}
+
+@Composable
+private fun ActionKeyContent(label: String, icon: ImageVector?) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(26.dp),
+            )
+        } else {
             Text(
                 text = label,
                 fontSize = 16.sp,
