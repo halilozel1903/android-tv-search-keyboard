@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
- * Colors for [TvSearchKeyboard]. Defaults are a dark 10-foot palette: charcoal keys, light labels,
- * and a near-white key when it has focus.
+ * Colors for [TvSearchKeyboard]. Defaults are a dark 10-foot palette: translucent keys that pick up
+ * the screen behind them, light labels, a white key when it has focus, and a soft blue accent.
  */
 @Immutable
 class TvSearchKeyboardColors(
@@ -158,28 +158,29 @@ class TvSearchKeyboardShapes(
  */
 object TvSearchKeyboardDefaults {
     /**
-     * Dark key surfaces with a light focused key. Pass individual colors to recolor a role.
+     * Translucent key surfaces with a white focused key and a blue accent. Pass individual colors
+     * to recolor a role.
      */
     fun colors(
-        keyContainer: Color = Color(0xFF1A1E29),
-        keyContent: Color = Color(0xFFF3F5F8),
-        keyFocusedContainer: Color = Color(0xFFF4F6FB),
-        keyFocusedContent: Color = Color(0xFF12141A),
-        actionContainer: Color = Color(0xFF12151E),
-        actionContent: Color = Color(0xFFE7EAF1),
-        actionBorder: Color = Color(0xFF343C50),
-        fieldContainer: Color = Color(0xFF10131B),
+        keyContainer: Color = Color(0x1AFFFFFF),
+        keyContent: Color = Color(0xFFECEFF5),
+        keyFocusedContainer: Color = Color(0xFFFFFFFF),
+        keyFocusedContent: Color = Color(0xFF0B0D12),
+        actionContainer: Color = Color(0x0FFFFFFF),
+        actionContent: Color = Color(0xFFC3CAD8),
+        actionBorder: Color = Color(0x14FFFFFF),
+        fieldContainer: Color = Color(0x14FFFFFF),
         fieldContent: Color = Color(0xFFF7F8FB),
-        fieldPlaceholder: Color = Color(0xFF8E97A8),
-        fieldBorder: Color = Color(0xFF2C3448),
-        caret: Color = Color(0xFFF7F8FB),
-        primaryContainer: Color = Color(0xFFF4F6FB),
-        primaryContent: Color = Color(0xFF12141A),
+        fieldPlaceholder: Color = Color(0xFF8A93A6),
+        fieldBorder: Color = Color(0x26FFFFFF),
+        caret: Color = Color(0xFF8AB4FF),
+        primaryContainer: Color = Color(0xFF8AB4FF),
+        primaryContent: Color = Color(0xFF071A38),
         primaryFocusedContainer: Color = Color(0xFFFFFFFF),
-        chipContainer: Color = Color(0xFF161A24),
-        chipContent: Color = Color(0xFFD5DAE6),
-        chipSelectedContainer: Color = Color(0xFF2A3346),
-        chipSelectedBorder: Color = Color(0xFFE6EAF3),
+        chipContainer: Color = Color(0x00FFFFFF),
+        chipContent: Color = Color(0xFFA9B1C2),
+        chipSelectedContainer: Color = Color(0x2E8AB4FF),
+        chipSelectedBorder: Color = Color(0x668AB4FF),
     ): TvSearchKeyboardColors = TvSearchKeyboardColors(
         keyContainer = keyContainer,
         keyContent = keyContent,
@@ -202,12 +203,12 @@ object TvSearchKeyboardDefaults {
         chipSelectedBorder = chipSelectedBorder,
     )
 
-    /** Rounded rectangles sized for a 10-foot keyboard. */
+    /** Soft rounded keys with pill-shaped field, search key, and chips. */
     fun shapes(
-        key: Shape = RoundedCornerShape(8.dp),
-        field: Shape = RoundedCornerShape(12.dp),
-        primary: Shape = RoundedCornerShape(12.dp),
-        chip: Shape = RoundedCornerShape(8.dp),
+        key: Shape = RoundedCornerShape(14.dp),
+        field: Shape = RoundedCornerShape(percent = 50),
+        primary: Shape = RoundedCornerShape(percent = 50),
+        chip: Shape = RoundedCornerShape(percent = 50),
     ): TvSearchKeyboardShapes = TvSearchKeyboardShapes(
         key = key,
         field = field,
