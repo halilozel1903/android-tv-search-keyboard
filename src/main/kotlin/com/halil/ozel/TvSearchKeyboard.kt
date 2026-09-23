@@ -22,7 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,12 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -50,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Glow
-import androidx.tv.material3.LocalContentColor
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.SelectableSurfaceDefaults
 import androidx.tv.material3.Surface
@@ -279,18 +276,16 @@ private fun QueryRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (onVoiceSearch != null) {
-            ActionKey(
-                label = "",
+            IconKey(
+                icon = KeyboardIcons.Mic,
+                contentDescription = voiceSearchLabel,
                 onClick = onVoiceSearch,
-                modifier = Modifier
-                    .size(QueryHeight)
-                    .semantics { contentDescription = voiceSearchLabel },
+                modifier = Modifier.size(QueryHeight),
+                containerColor = colors.actionContainer,
+                contentColor = colors.actionContent,
                 colors = colors,
-                shapes = shapes,
                 shape = shapes.field,
-            ) {
-                MicrophoneIcon(Modifier.size(22.dp))
-            }
+            )
         }
         Surface(
             modifier = Modifier
@@ -309,9 +304,16 @@ private fun QueryRow(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 18.dp),
+                    .padding(start = 20.dp, end = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                Icon(
+                    imageVector = KeyboardIcons.Search,
+                    contentDescription = null,
+                    tint = colors.fieldPlaceholder,
+                    modifier = Modifier.size(24.dp),
+                )
+                Spacer(Modifier.width(12.dp))
                 QueryText(
                     query = query,
                     placeholder = placeholder,
@@ -319,29 +321,33 @@ private fun QueryRow(
                     modifier = Modifier.weight(1f),
                 )
                 if (query.isNotEmpty()) {
-                    Spacer(Modifier.width(12.dp))
-                    ActionKey(
-                        label = clearLabel,
+                    Spacer(Modifier.width(8.dp))
+                    IconKey(
+                        icon = KeyboardIcons.Close,
+                        contentDescription = clearLabel,
                         onClick = { onQueryChange("") },
-                        modifier = Modifier
-                            .height(36.dp)
-                            .width(88.dp),
+                        modifier = Modifier.size(36.dp),
+                        containerColor = colors.keyContainer,
+                        contentColor = colors.fieldContent,
                         colors = colors,
-                        shapes = shapes,
-                        shape = RoundedCornerShape(8.dp),
-                        fontSizeSp = 14,
+                        shape = CircleShape,
+                        iconSize = 18.dp,
                     )
                 }
             }
         }
-        PrimaryKey(
-            label = searchLabel,
+        IconKey(
+            icon = KeyboardIcons.Search,
+            contentDescription = searchLabel,
             onClick = { onSearch(query) },
-            modifier = Modifier
-                .width(132.dp)
-                .fillMaxHeight(),
+            modifier = Modifier.size(QueryHeight),
+            containerColor = colors.primaryContainer,
+            contentColor = colors.primaryContent,
             colors = colors,
-            shapes = shapes,
+            shape = shapes.primary,
+            focusedContainerColor = colors.primaryFocusedContainer,
+            focusedContentColor = colors.primaryContent,
+            iconSize = 28.dp,
         )
     }
 }
@@ -638,9 +644,8 @@ private fun ActionKey(
     modifier: Modifier,
     colors: TvSearchKeyboardColors,
     shapes: TvSearchKeyboardShapes,
-    shape: androidx.compose.ui.graphics.Shape = shapes.key,
+    shape: Shape = shapes.key,
     fontSizeSp: Int = 16,
-    icon: (@Composable () -> Unit)? = null,
 ) {
     Surface(
         onClick = onClick,
@@ -675,17 +680,13 @@ private fun ActionKey(
         ),
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (icon != null) {
-                icon()
-            } else {
-                Text(
-                    text = label,
-                    fontSize = fontSizeSp.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = FontFamily.SansSerif,
-                    maxLines = 1,
-                )
-            }
+            Text(
+                text = label,
+                fontSize = fontSizeSp.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = FontFamily.SansSerif,
+                maxLines = 1,
+            )
         }
     }
 }
@@ -756,90 +757,62 @@ private fun SelectableActionKey(
     }
 }
 
+/** Round or pill key that shows a single glyph. */
 @Composable
-private fun PrimaryKey(
-    label: String,
+private fun IconKey(
+    icon: ImageVector,
+    contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier,
+    containerColor: Color,
+    contentColor: Color,
     colors: TvSearchKeyboardColors,
-    shapes: TvSearchKeyboardShapes,
+    shape: Shape,
+    focusedContainerColor: Color = colors.keyFocusedContainer,
+    focusedContentColor: Color = colors.keyFocusedContent,
+    iconSize: Dp = 24.dp,
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier,
-        shape = ClickableSurfaceDefaults.shape(shape = shapes.primary),
+        modifier = modifier.semantics { this.contentDescription = contentDescription },
+        shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = colors.primaryContainer,
-            contentColor = colors.primaryContent,
-            focusedContainerColor = colors.primaryFocusedContainer,
-            focusedContentColor = colors.primaryContent,
-            pressedContainerColor = colors.primaryFocusedContainer,
-            pressedContentColor = colors.primaryContent,
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = focusedContainerColor,
+            focusedContentColor = focusedContentColor,
+            pressedContainerColor = focusedContainerColor,
+            pressedContentColor = focusedContentColor,
         ),
         scale = ClickableSurfaceDefaults.scale(
             focusedScale = FocusedScale,
             pressedScale = PressedScale,
         ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border.None,
-            focusedBorder = Border.None,
-            pressedBorder = Border.None,
-            disabledBorder = Border.None,
-            focusedDisabledBorder = Border.None,
-        ),
-        glow = ClickableSurfaceDefaults.glow(
-            glow = Glow.None,
-            focusedGlow = Glow.None,
-            pressedGlow = Glow.None,
-        ),
+        border = NoBorder,
+        glow = NoGlow,
     ) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = label,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = FontFamily.SansSerif,
-                maxLines = 1,
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(iconSize),
             )
         }
     }
 }
 
-@Composable
-private fun MicrophoneIcon(modifier: Modifier = Modifier) {
-    val color = LocalContentColor.current
-    Canvas(modifier) {
-        val stroke = size.minDimension * 0.08f
-        val headWidth = size.width * 0.38f
-        val headHeight = size.height * 0.46f
-        drawRoundRect(
-            color = color,
-            topLeft = Offset((size.width - headWidth) / 2f, size.height * 0.06f),
-            size = Size(headWidth, headHeight),
-            cornerRadius = CornerRadius(headWidth / 2f, headWidth / 2f),
-        )
-        drawArc(
-            color = color,
-            startAngle = 20f,
-            sweepAngle = 140f,
-            useCenter = false,
-            topLeft = Offset(size.width * 0.16f, size.height * 0.30f),
-            size = Size(size.width * 0.68f, size.height * 0.42f),
-            style = Stroke(width = stroke, cap = StrokeCap.Round),
-        )
-        drawLine(
-            color = color,
-            start = Offset(size.width / 2f, size.height * 0.70f),
-            end = Offset(size.width / 2f, size.height * 0.86f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = color,
-            start = Offset(size.width * 0.32f, size.height * 0.86f),
-            end = Offset(size.width * 0.68f, size.height * 0.86f),
-            strokeWidth = stroke,
-            cap = StrokeCap.Round,
-        )
-    }
-}
+private val NoBorder
+    @Composable get() = ClickableSurfaceDefaults.border(
+        border = Border.None,
+        focusedBorder = Border.None,
+        pressedBorder = Border.None,
+        disabledBorder = Border.None,
+        focusedDisabledBorder = Border.None,
+    )
+
+private val NoGlow
+    @Composable get() = ClickableSurfaceDefaults.glow(
+        glow = Glow.None,
+        focusedGlow = Glow.None,
+        pressedGlow = Glow.None,
+    )
