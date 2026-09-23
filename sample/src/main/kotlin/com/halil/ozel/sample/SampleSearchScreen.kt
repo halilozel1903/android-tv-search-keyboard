@@ -4,11 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,22 +22,46 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Glow
+import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.halil.ozel.TvSearchKeyboard
 import com.halil.ozel.TvSearchKeyboardLayout
 
-private val Ink = Color(0xFF07090E)
-private val Muted = Color(0xFF9AA3B5)
-private val TitleInk = Color(0xFFF4F6FB)
+private val Background = Color(0xFF0F0F0F)
+private val Muted = Color(0xFFAAAAAA)
+private val TitleInk = Color(0xFFF1F1F1)
+
+private val SearchGlyph: ImageVector = ImageVector.Builder(
+    name = "Search",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).addPath(
+    pathData = addPathNodes(
+        "M15.5,14h-0.79l-0.28,-0.27C15.41,12.59 16,11.11 16,9.5 16,5.91 13.09,3 9.5,3S3,5.91 3,9.5 " +
+            "5.91,16 9.5,16c1.61,0 3.09,-0.59 4.23,-1.57l0.27,0.28v0.79l5,4.99L20.49,19l-4.99,-5z" +
+            "M9.5,14C7.01,14 5,11.99 5,9.5S7.01,5 9.5,5 14,7.01 14,9.5 11.99,14 9.5,14z",
+    ),
+    fill = SolidColor(Color.Black),
+).build()
 
 private data class Title(
     val name: String,
@@ -84,47 +111,32 @@ fun SampleSearchScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Ink),
+            .background(Background)
+            .padding(horizontal = 48.dp, vertical = 20.dp),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(Color(0xFF1A2740), Color(0xFF0A0E16), Ink),
-                        radius = 1400f,
-                    ),
-                ),
+        TvSearchKeyboard(
+            layout = initialLayout,
+            query = query,
+            onQueryChange = { next ->
+                query = next
+                voiceNote = false
+            },
+            onSearch = { submitted = it.trim() },
+            placeholder = "Search",
+            onVoiceSearch = { voiceNote = true },
+            suggestions = {
+                Suggestions(
+                    query = query,
+                    submitted = submitted,
+                    voiceNote = voiceNote,
+                    onPick = { name ->
+                        query = name
+                        submitted = name
+                        voiceNote = false
+                    },
+                )
+            },
         )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 48.dp, vertical = 20.dp),
-        ) {
-            TvSearchKeyboard(
-                layout = initialLayout,
-                query = query,
-                onQueryChange = { next ->
-                    query = next
-                    voiceNote = false
-                },
-                onSearch = { submitted = it.trim() },
-                placeholder = "Search movies and shows",
-                onVoiceSearch = { voiceNote = true },
-                suggestions = {
-                    Suggestions(
-                        query = query,
-                        submitted = submitted,
-                        voiceNote = voiceNote,
-                        onPick = { name ->
-                            query = name
-                            submitted = name
-                            voiceNote = false
-                        },
-                    )
-                },
-            )
-        }
     }
 }
 
@@ -142,7 +154,7 @@ private fun Suggestions(
         Catalog.filter { it.name.contains(trimmed, ignoreCase = true) }
     }
     val heading = when {
-        trimmed.isEmpty() -> "Popular"
+        trimmed.isEmpty() -> "Popular searches"
         submitted == trimmed && matches.isNotEmpty() -> "Results"
         else -> "Suggestions"
     }
@@ -150,9 +162,10 @@ private fun Suggestions(
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = heading,
-            color = TitleInk,
-            fontSize = 22.sp,
+            color = Muted,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(start = 20.dp, top = 18.dp),
         )
         if (voiceNote && trimmed.isEmpty()) {
             Spacer(Modifier.height(6.dp))
@@ -160,9 +173,10 @@ private fun Suggestions(
                 text = "Voice search is not available in this sample.",
                 color = Muted,
                 fontSize = 15.sp,
+                modifier = Modifier.padding(start = 20.dp),
             )
         }
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(12.dp))
         if (matches.isEmpty()) {
             EmptyMatches()
         } else {
@@ -170,10 +184,10 @@ private fun Suggestions(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 matches.forEach { title ->
-                    SuggestionRow(title = title, onPick = { onPick(title.name) })
+                    SuggestionRow(title = title, query = trimmed, onPick = { onPick(title.name) })
                 }
             }
         }
@@ -185,18 +199,26 @@ private fun EmptyMatches() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 36.dp),
+            .padding(bottom = 64.dp),
         verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Icon(
+            imageVector = SearchGlyph,
+            contentDescription = null,
+            tint = Muted,
+            modifier = Modifier.size(56.dp),
+        )
+        Spacer(Modifier.height(20.dp))
         Text(
             text = "No matching titles",
             color = TitleInk,
-            fontSize = 26.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Medium,
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Nothing in this catalog matches that spelling.",
+            text = "Try a different spelling or fewer letters.",
             color = Muted,
             fontSize = 16.sp,
         )
@@ -206,29 +228,31 @@ private fun EmptyMatches() {
 @Composable
 private fun SuggestionRow(
     title: Title,
+    query: String,
     onPick: () -> Unit,
 ) {
+    val shape = RoundedCornerShape(percent = 50)
     Surface(
         onClick = onPick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp),
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(10.dp)),
+            .height(56.dp),
+        shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color(0xFF141821),
+            containerColor = Color.Transparent,
             contentColor = TitleInk,
-            focusedContainerColor = Color(0xFFF4F6FB),
-            focusedContentColor = Color(0xFF12141A),
-            pressedContainerColor = Color(0xFFF4F6FB),
-            pressedContentColor = Color(0xFF12141A),
+            focusedContainerColor = Color.White,
+            focusedContentColor = Background,
+            pressedContainerColor = Color.White,
+            pressedContentColor = Background,
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f, pressedScale = 1.01f),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f, pressedScale = 1f),
         border = ClickableSurfaceDefaults.border(
-            border = androidx.tv.material3.Border.None,
-            focusedBorder = androidx.tv.material3.Border.None,
-            pressedBorder = androidx.tv.material3.Border.None,
-            disabledBorder = androidx.tv.material3.Border.None,
-            focusedDisabledBorder = androidx.tv.material3.Border.None,
+            border = Border.None,
+            focusedBorder = Border.None,
+            pressedBorder = Border.None,
+            disabledBorder = Border.None,
+            focusedDisabledBorder = Border.None,
         ),
         glow = ClickableSurfaceDefaults.glow(
             glow = Glow.None,
@@ -236,23 +260,48 @@ private fun SuggestionRow(
             pressedGlow = Glow.None,
         ),
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 18.dp),
-            verticalArrangement = Arrangement.Center,
+                .padding(horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = title.name,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
+            val secondary = LocalContentColor.current.copy(alpha = 0.6f)
+            Icon(
+                imageVector = SearchGlyph,
+                contentDescription = null,
+                tint = secondary,
+                modifier = Modifier.size(22.dp),
             )
-            val meta = LocalContentColor.current.copy(alpha = 0.62f)
+            Spacer(Modifier.width(20.dp))
+            Text(
+                text = highlightCompletion(title.name, query),
+                fontSize = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(16.dp))
             Text(
                 text = title.detail,
-                color = meta,
-                fontSize = 13.sp,
+                color = secondary,
+                fontSize = 14.sp,
+                maxLines = 1,
             )
         }
+    }
+}
+
+/** Like YouTube, the typed part stays regular and the rest of the suggestion is bold. */
+private fun highlightCompletion(name: String, query: String): AnnotatedString {
+    val start = if (query.isEmpty()) -1 else name.indexOf(query, ignoreCase = true)
+    if (start < 0) {
+        return AnnotatedString(name)
+    }
+    val end = start + query.length
+    return buildAnnotatedString {
+        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(name.substring(0, start)) }
+        append(name.substring(start, end))
+        withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(name.substring(end)) }
     }
 }
