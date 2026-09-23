@@ -21,11 +21,11 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      # The action installs the retired "tools" package by default, which makes sdkmanager fail.
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
-      - name: Install SDK packages
-        run: sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+        with:
+          packages: platform-tools platforms;android-37.0 build-tools;37.0.0
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
