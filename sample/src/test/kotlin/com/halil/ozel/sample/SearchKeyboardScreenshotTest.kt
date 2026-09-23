@@ -33,6 +33,11 @@ class SearchKeyboardScreenshotTest {
     }
 
     @Test
+    fun turkishSearchForShogun() {
+        capture("search-turkish.png", "Sho", TvSearchKeyboardLayout.Turkish, "ş")
+    }
+
+    @Test
     fun emptySearchForInception() {
         capture("search-empty.png", "Inception", TvSearchKeyboardLayout.Alphabetical, "a")
     }
