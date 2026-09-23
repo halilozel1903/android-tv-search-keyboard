@@ -1,21 +1,37 @@
 # Android TV Search Keyboard
 
-A Jetpack Compose keyboard for a 10-foot search screen. It follows the shape of the YouTube and Netflix keyboards on Android TV: a large query field, a D-pad grid, and room for suggestions beside the keys.
+[![CI](https://github.com/halilozel1903/android-tv-search-keyboard/actions/workflows/ci.yml/badge.svg)](https://github.com/halilozel1903/android-tv-search-keyboard/actions/workflows/ci.yml)
+[![JitPack](https://jitpack.io/v/halilozel1903/android-tv-search-keyboard.svg)](https://jitpack.io/#halilozel1903/android-tv-search-keyboard)
+[![minSdk](https://img.shields.io/badge/minSdk-23-3DDC84?logo=android&logoColor=white)](#requirements)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-TV%20Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/androidx/releases/tv)
+[![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
-The default look follows YouTube on Android TV: bare glyphs on a neutral dark background, pill-shaped controls with icons for voice, search, shift, space, and delete, and a white pill on the focused key. The system Back key is left alone.
+A production-ready, D-pad first search keyboard for Android TV, built with Jetpack Compose and TV Material 3.
 
-![Alphabetical search for Dune, with A focused and Dune: Part Two beside the keys](docs/images/search-alphabetical.png)
+The component follows the interaction model of the YouTube app on Android TV: a pill-shaped query field, a grid of bare glyphs, a white focus indicator that scales with the focused key, and a dedicated area for live suggestions. It is fully controlled, themeable, and requires no touch input.
 
-![QWERTY search for Andor, with Q focused](docs/images/search-qwerty.png)
+![Alphabetical layout with a live suggestion for "Dune"](docs/images/search-alphabetical.png)
 
-![Inception matches nothing in the sample catalog](docs/images/search-empty.png)
+| QWERTY | Turkish | Empty state |
+| :---: | :---: | :---: |
+| ![QWERTY layout](docs/images/search-qwerty.png) | ![Turkish layout](docs/images/search-turkish.png) | ![No matching titles](docs/images/search-empty.png) |
 
-## Install
+## Features
 
-The library is published with [JitPack](https://jitpack.io) from the root project. Add the repository, then depend on the repository coordinate.
+- **10-foot design.** Large glyphs, generous spacing, and a high-contrast focus state tuned for viewing from the couch.
+- **Three layouts.** Alphabetical (the YouTube order), QWERTY, and a complete Turkish alphabet, switchable from a segmented control.
+- **Controlled state.** The caller owns the query, so the keyboard integrates cleanly with any ViewModel or state holder.
+- **Suggestions slot.** Supply any composable to render suggestions or results next to the keys.
+- **Voice search hook.** An optional microphone button that invokes your own recognizer.
+- **Themeable.** Every color role and corner shape can be overridden through `TvSearchKeyboardDefaults`.
+- **Accessible.** Icon-only keys expose content descriptions for screen readers.
+- **Lightweight.** No dependency on the Material icons artifact. All glyphs ship as vector paths inside the library.
+
+## Installation
+
+The library is distributed through [JitPack](https://jitpack.io). Add the repository to `settings.gradle.kts`:
 
 ```kotlin
-// settings.gradle.kts
 dependencyResolutionManagement {
     repositories {
         google()
@@ -25,90 +41,135 @@ dependencyResolutionManagement {
 }
 ```
 
+Then add the dependency to your TV module:
+
 ```kotlin
 dependencies {
     implementation("com.github.halilozel1903:android-tv-search-keyboard:1.0.0")
 }
 ```
 
-The keyboard types are in the `com.halil.ozel` package. The sample application id is `com.halil.ozel.sample`.
+### Requirements
 
-The sample module in this repository depends on the root project, which is the setup to use while you are changing the keyboard itself.
+| Requirement | Version |
+| --- | --- |
+| `minSdk` | 23 |
+| Jetpack Compose BOM | `2026.09.00` or newer |
+| `androidx.tv:tv-material` | `1.1.0` or newer |
+| JDK (to build from source) | 17 or newer |
 
-Requirements: `minSdk` 23, Jetpack Compose (BOM `2026.09.00` or newer), and `androidx.tv:tv-material`.
-
-## Command line
-
-JDK 17 or newer, and an Android SDK. If `ANDROID_HOME` is unset, the build uses `~/Library/Android/sdk` or `~/Android/Sdk` when that directory exists.
-
-```bash
-git clone https://github.com/halilozel1903/android-tv-search-keyboard.git
-cd android-tv-search-keyboard
-./gradlew :assembleRelease
-./gradlew :sample:assembleDebug
-./gradlew :test
-```
-
-`:assembleRelease` builds the library. `:sample:assembleDebug` builds the sample television app. `:test` runs the layout unit tests. The debug APK is `sample/build/outputs/apk/debug/sample-debug.apk`.
-
-## Use
-
-`query` is controlled by the caller. `onSearch` runs when the viewer presses Search.
+## Quick start
 
 ```kotlin
 import com.halil.ozel.TvSearchKeyboard
 
-var query by remember { mutableStateOf("") }
+@Composable
+fun SearchScreen(onSearch: (String) -> Unit) {
+    var query by remember { mutableStateOf("") }
 
-TvSearchKeyboard(
-    query = query,
-    onQueryChange = { query = it },
-    onSearch = { submitted -> /* open results for submitted */ },
-    placeholder = "Search movies and shows",
-    onVoiceSearch = { /* start your own recognizer */ },
-    suggestions = {
-        Suggestions(query)
-    },
-)
+    TvSearchKeyboard(
+        query = query,
+        onQueryChange = { query = it },
+        onSearch = onSearch,
+        placeholder = "Search",
+        onVoiceSearch = { /* launch your speech recognizer */ },
+        suggestions = { Suggestions(query) },
+    )
+}
 ```
 
-`onVoiceSearch` only shows a button and invokes your callback. This library does not record audio or transcribe speech.
+Focus starts on the first letter key. Every key press, including delete, clear, and space, is reported through `onQueryChange`, and `onSearch` receives the current query when the search button is pressed.
 
-Hide the layout switcher and lock the arrangement with `showLayoutSelector = false` and a `layout` value. To own the selection yourself, pass `layout` and `onLayoutChange` and write the new value back.
+> [!NOTE]
+> `onVoiceSearch` only renders the microphone button and invokes your callback. The library does not record audio or transcribe speech.
+
+## API overview
+
+| Parameter | Description |
+| --- | --- |
+| `query` / `onQueryChange` | Current text and its change callback. Required. |
+| `onSearch` | Invoked with the current query when the search button is pressed. Required. |
+| `placeholder` | Hint shown while the query is empty. |
+| `layout` / `onLayoutChange` | Initial or controlled key arrangement. See [Layouts](#layouts). |
+| `showLayoutSelector` | Hides the layout switcher and locks `layout` when `false`. |
+| `onVoiceSearch` | Shows the microphone button when non-null. |
+| `suggestions` | Optional composable rendered to the right of the keyboard. |
+| `colors` / `shapes` | Visual overrides. See [Theming](#theming). |
+| `searchLabel`, `spaceLabel`, `deleteLabel`, `clearLabel`, `shiftLabel`, `voiceSearchLabel` | Visible labels and accessibility descriptions, for localization. |
+| `layoutLabels` | Labels for the layout switcher segments. |
+| `requestInitialFocus` | Requests focus on the first letter key when the keyboard enters composition. |
+
+The composable does not intercept the system Back key, so your navigation logic remains in control.
 
 ## Layouts
 
-| Layout | What it is |
+| Layout | Description |
 | --- | --- |
-| `Alphabetical` | Default. A–Z and digits, six columns, in the order YouTube uses on TV. |
-| `Qwerty` | English typewriter rows. |
-| `Turkish` | Turkish alphabet. Ğ, Ü, Ş, İ, Ö, and Ç sit in dictionary order, and dotted `i` / `İ` is a different key from dotless `ı` / `I`. |
+| `Alphabetical` | Default. A–Z followed by digits in six columns, matching YouTube on Android TV. |
+| `Qwerty` | Standard English typewriter rows with a digit row. |
+| `Turkish` | The full Turkish alphabet in dictionary order, including Ç, Ğ, İ, Ö, Ş, and Ü. Dotted `i` / `İ` and dotless `ı` / `I` are separate keys. |
 
-The on-screen labels are English: Alphabetical, QWERTY, and Turkish. Shift latches until it is pressed again. On the Turkish layout, shift turns `i` into `İ` and `ı` into `I`. On the English layouts, `i` becomes `I`.
+Shift latches until it is pressed again. Case mapping is locale-correct: on the Turkish layout shift maps `i` to `İ` and `ı` to `I`, while the English layouts map `i` to `I`.
 
-## Theme
+To lock a single arrangement, pass `layout` together with `showLayoutSelector = false`. To persist the viewer's choice, pass both `layout` and `onLayoutChange` and write the new value back to your state.
 
-`TvSearchKeyboardDefaults.colors()` and `TvSearchKeyboardDefaults.shapes()` are the YouTube-style dark look. Replace any role you need:
+## Theming
+
+`TvSearchKeyboardDefaults.colors()` and `TvSearchKeyboardDefaults.shapes()` provide the neutral dark theme shown above. Override only the roles you need:
 
 ```kotlin
 TvSearchKeyboard(
     query = query,
     onQueryChange = { query = it },
-    onSearch = { },
+    onSearch = onSearch,
     colors = TvSearchKeyboardDefaults.colors(
-        keyFocusedContainer = Color(0xFFE8EEF9),
-        primaryContainer = Color(0xFFE8EEF9),
+        keyFocusedContainer = Color(0xFFFFD54F),
+        keyFocusedContent = Color(0xFF1A1A1A),
+        primaryContainer = Color(0xFFFFD54F),
     ),
     shapes = TvSearchKeyboardDefaults.shapes(
-        key = RoundedCornerShape(10.dp),
+        key = RoundedCornerShape(12.dp),
     ),
 )
 ```
 
-## Sample
+| Role group | Controls |
+| --- | --- |
+| `key*` | Glyph keys in their resting and focused states. |
+| `action*` | Microphone, shift, space, delete, and clear keys, plus the layout switcher track. |
+| `field*`, `caret` | Query field container, text, placeholder, border, and caret. |
+| `primary*` | The search button. |
+| `chip*` | Layout switcher segments. |
 
-The `sample` module is an Android TV app with a leanback launcher intent filter. Touch is not required. It shows a mock catalog, filters as you type, and has an empty state when nothing matches. Build it with `./gradlew :sample:assembleDebug`.
+## Sample app
+
+The `sample` module is a complete Android TV search screen with a mock catalog, live filtering, suggestion highlighting, and an empty state. It declares a Leanback launcher intent, so it appears on the TV home screen after installation.
+
+```bash
+./gradlew :sample:installDebug
+```
+
+## Building from source
+
+```bash
+git clone https://github.com/halilozel1903/android-tv-search-keyboard.git
+cd android-tv-search-keyboard
+./gradlew :assembleRelease :sample:assembleDebug :test
+```
+
+| Task | Purpose |
+| --- | --- |
+| `:assembleRelease` | Builds the library AAR. |
+| `:sample:assembleDebug` | Builds the sample TV app at `sample/build/outputs/apk/debug/sample-debug.apk`. |
+| `:test` | Runs the layout and sizing unit tests. |
+| `:sample:recordRoborazziDebug` | Regenerates the screenshots in `docs/images`. |
+
+If `ANDROID_HOME` is not set, the build falls back to `~/Library/Android/sdk` or `~/Android/Sdk` when either directory exists.
+
+## Contributing
+
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) before you open one, and record user-visible changes in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE)
+Released under the [MIT License](LICENSE).
