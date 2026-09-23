@@ -7,6 +7,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -56,7 +57,7 @@ import androidx.tv.material3.Text
 import androidx.tv.material3.darkColorScheme
 
 private val QueryHeight = 60.dp
-private val ChipHeight = 32.dp
+private val ChipHeight = 36.dp
 private val SectionGap = 8.dp
 private val FocusedScale = 1.06f
 private val PressedScale = 1.02f
@@ -425,13 +426,22 @@ private fun LayoutSelector(
     shapes: TvSearchKeyboardShapes,
     onSelect: (TvSearchKeyboardLayout) -> Unit,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(ChipHeight)
+            .background(colors.actionContainer, shapes.chip)
+            .padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
         TvSearchKeyboardLayout.entries.forEach { option ->
             val selected = option == current
             Surface(
                 selected = selected,
                 onClick = { onSelect(option) },
-                modifier = Modifier.height(ChipHeight),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 shape = SelectableSurfaceDefaults.shape(shape = shapes.chip),
                 colors = SelectableSurfaceDefaults.colors(
                     containerColor = colors.chipContainer,
@@ -456,7 +466,7 @@ private fun LayoutSelector(
                     border = Border.None,
                     focusedBorder = Border.None,
                     selectedBorder = Border(
-                        border = BorderStroke(1.5.dp, colors.chipSelectedBorder),
+                        border = BorderStroke(1.dp, colors.chipSelectedBorder),
                         shape = shapes.chip,
                     ),
                     focusedSelectedBorder = Border.None,
@@ -471,7 +481,9 @@ private fun LayoutSelector(
                 ),
             ) {
                 Box(
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -480,6 +492,7 @@ private fun LayoutSelector(
                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                         fontFamily = FontFamily.SansSerif,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
