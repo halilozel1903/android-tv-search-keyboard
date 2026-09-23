@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- YouTube-style redesign: bare glyph keys, pill-shaped field and controls, and a neutral dark palette.
+- Icon buttons for voice, search, clear, shift, space, and delete.
+- Segmented layout switcher.
+- Sample suggestions restyled as a YouTube-like list.
+
 ## 1.0.0
 
 - Publish the library from the root project. The JitPack coordinate is `com.github.halilozel1903:android-tv-search-keyboard:1.0.0`.

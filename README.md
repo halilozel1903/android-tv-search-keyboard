@@ -2,7 +2,7 @@
 
 A Jetpack Compose keyboard for a 10-foot search screen. It follows the shape of the YouTube and Netflix keyboards on Android TV: a large query field, a D-pad grid, and room for suggestions beside the keys.
 
-Focus scales the key and turns it light, with dark text. Delete is a key. The system Back key is left alone.
+The default look follows YouTube on Android TV: bare glyphs on a neutral dark background, pill-shaped controls with icons for voice, search, shift, space, and delete, and a white pill on the focused key. The system Back key is left alone.
 
 ![Alphabetical search for Dune, with A focused and Dune: Part Two beside the keys](docs/images/search-alphabetical.png)
 
@@ -88,7 +88,7 @@ The on-screen labels are English: Alphabetical, QWERTY, and Turkish. Shift latch
 
 ## Theme
 
-`TvSearchKeyboardDefaults.colors()` and `TvSearchKeyboardDefaults.shapes()` are the dark television look. Replace any role you need:
+`TvSearchKeyboardDefaults.colors()` and `TvSearchKeyboardDefaults.shapes()` are the YouTube-style dark look. Replace any role you need:
 
 ```kotlin
 TvSearchKeyboard(
