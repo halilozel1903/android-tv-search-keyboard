@@ -59,7 +59,7 @@ import androidx.tv.material3.darkColorScheme
 private val QueryHeight = 60.dp
 private val ChipHeight = 36.dp
 private val SectionGap = 8.dp
-private val FocusedScale = 1.06f
+private val FocusedScale = 1.1f
 private val PressedScale = 1.02f
 
 /**
@@ -157,7 +157,7 @@ fun TvSearchKeyboard(
 
     MaterialTheme(
         colorScheme = darkColorScheme(
-            surface = Color(0xFF0E1118),
+            surface = Color(0xFF0F0F0F),
             onSurface = colors.keyContent,
             inverseSurface = colors.keyFocusedContainer,
             inverseOnSurface = colors.keyFocusedContent,
@@ -642,7 +642,7 @@ private fun LetterKey(
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 text = label,
-                fontSize = 20.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = FontFamily.SansSerif,
             )
