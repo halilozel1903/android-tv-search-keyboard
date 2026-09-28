@@ -26,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -89,17 +98,39 @@ internal fun keyboardMetrics(
     return KeyboardMetrics(keyHeight = key.coerceAtMost(64.dp), rowGap = gap)
 }
 
+/**
+ * The last text the keyboard reported. [sync] adopts any new value the caller passes in, such as
+ * a query set from a suggestion or trimmed by the caller.
+ */
+private class QueryBuffer(initial: String) {
+    var text: String = initial
+    private var lastSeen: String = initial
+
+    fun sync(query: String) {
+        if (query != lastSeen) {
+            lastSeen = query
+            text = query
+        }
+    }
+}
+
 internal data class KeyboardMetrics(
     val keyHeight: Dp,
     val rowGap: Dp,
-)
+) {
+    fun gridHeight(rows: Int): Dp = keyHeight * rows + rowGap * (rows - 1).coerceAtLeast(0)
+}
 
 /**
  * 10-foot search keyboard for Android TV.
  *
  * The [query] is controlled by the caller. D-pad focus moves across the grid; the focused key
- * scales slightly and inverts to a light surface with dark text. Delete is its own key. This
+ * scales slightly and inverts to a light surface with dark text. Delete is its own key, and a long
+ * press on it clears the query. The `&123` key swaps the letters for digits and punctuation. This
  * composable does not handle the system Back key.
+ *
+ * Text typed on a hardware keyboard, or on the number pad of a remote, goes into the query as
+ * well, and Backspace deletes. Turn this off with [acceptHardwareKeyboard].
  *
  * Pass [onVoiceSearch] to show a voice button. The library does not record or transcribe speech.
  * Pass [suggestions] to place a results column to the right of the keys.
@@ -119,12 +150,16 @@ internal data class KeyboardMetrics(
  * @param deleteLabel Label for the delete key.
  * @param clearLabel Label for the clear key and the control inside the query field.
  * @param shiftLabel Label for the shift key. Shift stays on until it is pressed again.
+ * @param symbolsLabel Label for the key that opens the digits and punctuation page.
+ * @param lettersLabel Label for the same key while that page is open.
  * @param layoutLabels English labels for the layout switcher.
  * @param showLayoutSelector When false, [layout] is fixed and the switcher is hidden.
  * @param suggestions Optional content for the column to the right of the keyboard.
  * @param colors Key, field, and accent colors. Defaults suit a dark television UI.
  * @param shapes Corner shapes for keys, the field, and the search key.
  * @param requestInitialFocus When true, focus starts on the first letter key.
+ * @param acceptHardwareKeyboard When true, printable keys and Backspace from a physical keyboard
+ * or remote edit the query while focus is inside the keyboard.
  */
 @Composable
 public fun TvSearchKeyboard(
@@ -142,18 +177,36 @@ public fun TvSearchKeyboard(
     deleteLabel: String = "Delete",
     clearLabel: String = "Clear",
     shiftLabel: String = "Shift",
+    symbolsLabel: String = "&123",
+    lettersLabel: String = "ABC",
     layoutLabels: TvSearchKeyboardLayoutLabels = TvSearchKeyboardLayoutLabels(),
     showLayoutSelector: Boolean = true,
     suggestions: (@Composable () -> Unit)? = null,
     colors: TvSearchKeyboardColors = TvSearchKeyboardDefaults.colors(),
     shapes: TvSearchKeyboardShapes = TvSearchKeyboardDefaults.shapes(),
     requestInitialFocus: Boolean = true,
+    acceptHardwareKeyboard: Boolean = true,
 ) {
     var currentLayout by remember { mutableStateOf(layout) }
     var shifted by remember { mutableStateOf(false) }
+    var showSymbols by remember { mutableStateOf(false) }
     LaunchedEffect(layout) { currentLayout = layout }
-    val keyRows = rowsFor(currentLayout)
+    val letterRows = rowsFor(currentLayout)
+    val keyRows = if (showSymbols) symbolRowsFor(letterRows.columns) else letterRows
     val firstKey = remember { FocusRequester() }
+
+    // Key events can arrive faster than the caller recomposes with the new query, for example
+    // when a hardware keyboard repeats. Edits start from the last text sent out, not from a
+    // [query] that may be one keystroke behind.
+    val buffer = remember { QueryBuffer(query) }
+    SideEffect { buffer.sync(query) }
+    val edit: ((String) -> String) -> Unit = { transform ->
+        val next = transform(buffer.text)
+        if (next != buffer.text) {
+            buffer.text = next
+            onQueryChange(next)
+        }
+    }
 
     MaterialTheme(
         colorScheme = darkColorScheme(
@@ -164,7 +217,24 @@ public fun TvSearchKeyboard(
             border = colors.actionBorder,
         ),
     ) {
-        Row(modifier = modifier.fillMaxSize()) {
+        Row(
+            modifier = modifier
+                .fillMaxSize()
+                .onPreviewKeyEvent { event ->
+                    if (!acceptHardwareKeyboard || event.type != KeyEventType.KeyDown) {
+                        return@onPreviewKeyEvent false
+                    }
+                    if (event.isCtrlPressed || event.isMetaPressed) return@onPreviewKeyEvent false
+                    if (event.key == Key.Backspace) {
+                        edit(::deleteLastCodePoint)
+                        return@onPreviewKeyEvent true
+                    }
+                    val codePoint = event.utf16CodePoint
+                    if (appendTyped("", codePoint) == null) return@onPreviewKeyEvent false
+                    edit { appendTyped(it, codePoint) ?: it }
+                    true
+                },
+        ) {
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -173,15 +243,15 @@ public fun TvSearchKeyboard(
                 BoxWithConstraints(Modifier.fillMaxSize()) {
                     val metrics = keyboardMetrics(
                         columnHeight = maxHeight,
-                        glyphRows = keyRows.rows.size,
+                        glyphRows = letterRows.rows.size,
                         showLayouts = showLayoutSelector,
                     )
                     Column(Modifier.fillMaxSize()) {
                         QueryRow(
                             query = query,
                             placeholder = placeholder,
-                            onQueryChange = onQueryChange,
-                            onSearch = onSearch,
+                            onClear = { edit { "" } },
+                            onSearch = { onSearch(buffer.text) },
                             onVoiceSearch = onVoiceSearch,
                             voiceSearchLabel = voiceSearchLabel,
                             searchLabel = searchLabel,
@@ -198,6 +268,7 @@ public fun TvSearchKeyboard(
                                 shapes = shapes,
                                 onSelect = { next ->
                                     currentLayout = next
+                                    showSymbols = false
                                     onLayoutChange?.invoke(next)
                                 },
                             )
@@ -205,13 +276,17 @@ public fun TvSearchKeyboard(
                         }
                         GlyphGrid(
                             keyRows = keyRows,
-                            shifted = shifted,
+                            // The symbol page has fewer rows. Keeping the letter height stops the
+                            // action row from jumping when the viewer toggles between pages.
+                            height = metrics.gridHeight(letterRows.rows.size),
+                            shifted = shifted && !showSymbols,
                             metrics = metrics,
                             firstKey = firstKey,
                             colors = colors,
                             shapes = shapes,
                             onGlyph = { glyph ->
-                                onQueryChange(query + glyph.rendered(shifted))
+                                val text = glyph.rendered(shifted && !showSymbols)
+                                edit { it + text }
                             },
                         )
                         Spacer(Modifier.height(SectionGap))
@@ -219,14 +294,14 @@ public fun TvSearchKeyboard(
                             height = metrics.keyHeight,
                             shifted = shifted,
                             onShift = { shifted = !shifted },
-                            onSpace = {
-                                if (query.isNotEmpty() && !query.endsWith(" ")) {
-                                    onQueryChange("$query ")
-                                }
-                            },
-                            onDelete = { onQueryChange(deleteLastCodePoint(query)) },
-                            onClear = { onQueryChange("") },
+                            showSymbols = showSymbols,
+                            onToggleSymbols = { showSymbols = !showSymbols },
+                            onSpace = { edit(::appendSpace) },
+                            onDelete = { edit(::deleteLastCodePoint) },
+                            onClear = { edit { "" } },
                             shiftLabel = shiftLabel,
+                            symbolsLabel = symbolsLabel,
+                            lettersLabel = lettersLabel,
                             spaceLabel = spaceLabel,
                             deleteLabel = deleteLabel,
                             clearLabel = clearLabel,
@@ -260,8 +335,8 @@ public fun TvSearchKeyboard(
 private fun QueryRow(
     query: String,
     placeholder: String,
-    onQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    onClear: () -> Unit,
+    onSearch: () -> Unit,
     onVoiceSearch: (() -> Unit)?,
     voiceSearchLabel: String,
     searchLabel: String,
@@ -326,7 +401,7 @@ private fun QueryRow(
                     IconKey(
                         icon = KeyboardIcons.Close,
                         contentDescription = clearLabel,
-                        onClick = { onQueryChange("") },
+                        onClick = onClear,
                         modifier = Modifier.size(36.dp),
                         containerColor = colors.keyContainer,
                         contentColor = colors.fieldContent,
@@ -340,7 +415,7 @@ private fun QueryRow(
         IconKey(
             icon = KeyboardIcons.Search,
             contentDescription = searchLabel,
-            onClick = { onSearch(query) },
+            onClick = onSearch,
             modifier = Modifier.size(QueryHeight),
             containerColor = colors.primaryContainer,
             contentColor = colors.primaryContent,
@@ -503,6 +578,7 @@ private fun LayoutSelector(
 @Composable
 private fun GlyphGrid(
     keyRows: KeyRows,
+    height: Dp,
     shifted: Boolean,
     metrics: KeyboardMetrics,
     firstKey: FocusRequester,
@@ -510,7 +586,11 @@ private fun GlyphGrid(
     shapes: TvSearchKeyboardShapes,
     onGlyph: (Glyph) -> Unit,
 ) {
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .height(height),
+    ) {
         val gap = 8.dp
         val keyWidth = (maxWidth - gap * (keyRows.columns - 1)) / keyRows.columns
         Column(verticalArrangement = Arrangement.spacedBy(metrics.rowGap)) {
@@ -546,10 +626,14 @@ private fun ActionRow(
     height: Dp,
     shifted: Boolean,
     onShift: () -> Unit,
+    showSymbols: Boolean,
+    onToggleSymbols: () -> Unit,
     onSpace: () -> Unit,
     onDelete: () -> Unit,
     onClear: () -> Unit,
     shiftLabel: String,
+    symbolsLabel: String,
+    lettersLabel: String,
     spaceLabel: String,
     deleteLabel: String,
     clearLabel: String,
@@ -568,7 +652,16 @@ private fun ActionRow(
             selected = shifted,
             onClick = onShift,
             modifier = Modifier
-                .weight(1.15f)
+                .weight(1f)
+                .fillMaxHeight(),
+            colors = colors,
+            shapes = shapes,
+        )
+        ActionKey(
+            label = if (showSymbols) lettersLabel else symbolsLabel,
+            onClick = onToggleSymbols,
+            modifier = Modifier
+                .weight(1.3f)
                 .fillMaxHeight(),
             colors = colors,
             shapes = shapes,
@@ -578,7 +671,7 @@ private fun ActionRow(
             icon = KeyboardIcons.Space,
             onClick = onSpace,
             modifier = Modifier
-                .weight(2.4f)
+                .weight(1.9f)
                 .fillMaxHeight(),
             colors = colors,
             shapes = shapes,
@@ -587,8 +680,9 @@ private fun ActionRow(
             label = deleteLabel,
             icon = KeyboardIcons.Backspace,
             onClick = onDelete,
+            onLongClick = onClear,
             modifier = Modifier
-                .weight(1.25f)
+                .weight(1.2f)
                 .fillMaxHeight(),
             colors = colors,
             shapes = shapes,
@@ -597,7 +691,7 @@ private fun ActionRow(
             label = clearLabel,
             onClick = onClear,
             modifier = Modifier
-                .weight(1.15f)
+                .weight(1.3f)
                 .fillMaxHeight(),
             colors = colors,
             shapes = shapes,
@@ -662,9 +756,11 @@ private fun ActionKey(
     shapes: TvSearchKeyboardShapes,
     shape: Shape = shapes.key,
     icon: ImageVector? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     Surface(
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = modifier.semantics { contentDescription = label },
         shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
