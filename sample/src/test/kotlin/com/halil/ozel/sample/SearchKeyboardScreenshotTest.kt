@@ -4,6 +4,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.test.requestFocus
 import com.halil.ozel.TvSearchKeyboardLayout
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -38,6 +41,16 @@ class SearchKeyboardScreenshotTest {
     }
 
     @Test
+    fun symbolsPageForSpiderMan() {
+        capture("search-symbols.png", "Spider", TvSearchKeyboardLayout.Alphabetical, "-") {
+            // TV surfaces click on the D-pad center key, the way a remote presses them.
+            rule.onNodeWithText("&123")
+                .requestFocus()
+                .performKeyInput { pressKey(Key.DirectionCenter) }
+        }
+    }
+
+    @Test
     fun emptySearchForInception() {
         capture("search-empty.png", "Inception", TvSearchKeyboardLayout.Alphabetical, "a")
     }
@@ -47,12 +60,15 @@ class SearchKeyboardScreenshotTest {
         query: String,
         layout: TvSearchKeyboardLayout,
         focusedKey: String,
+        prepare: () -> Unit = {},
     ) {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             SampleSearchScreen(initialQuery = query, initialLayout = layout)
         }
         rule.mainClock.advanceTimeBy(500)
+        prepare()
+        rule.mainClock.advanceTimeBy(100)
         rule.onNodeWithText(focusedKey).requestFocus()
         rule.mainClock.advanceTimeBy(32)
         val dir = File("..", "docs/images")
