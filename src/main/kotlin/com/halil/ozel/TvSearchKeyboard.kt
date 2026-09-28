@@ -422,7 +422,7 @@ private fun QueryRow(
             colors = colors,
             shape = shapes.primary,
             focusedContainerColor = colors.primaryFocusedContainer,
-            focusedContentColor = colors.primaryContent,
+            focusedContentColor = colors.keyFocusedContent,
             iconSize = 28.dp,
         )
     }
