@@ -14,12 +14,15 @@ jobs:
     name: Assemble library and sample
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      # JDK 17 runs the Robolectric tests in the sample module, JDK 21 runs Gradle.
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: |
+            17
+            21
 
       # The action installs the retired "tools" package by default, which makes sdkmanager fail.
       - name: Set up Android SDK
@@ -28,7 +31,10 @@ jobs:
           packages: platform-tools platforms;android-37.0 build-tools;37.0.0
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Assemble release library and debug sample
-        run: ./gradlew :assembleRelease :sample:assembleDebug :test --stacktrace
+        run: ./gradlew :assembleRelease :sample:assembleDebug --stacktrace
+
+      - name: Run unit and UI tests
+        run: ./gradlew :test :sample:testDebugUnitTest --stacktrace
