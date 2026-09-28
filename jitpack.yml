@@ -1,4 +1,8 @@
 jdk:
   - openjdk21
 before_install:
-  - sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+  - yes | sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+# A custom install command stops JitPack from injecting its own maven-publish plugin,
+# which clashes with the one declared in build.gradle.kts.
+install:
+  - ./gradlew :publishReleasePublicationToMavenLocal --stacktrace
