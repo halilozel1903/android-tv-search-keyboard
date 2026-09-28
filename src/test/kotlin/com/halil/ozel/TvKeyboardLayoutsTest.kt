@@ -2,6 +2,7 @@ package com.halil.ozel
 
 import androidx.compose.ui.unit.dp
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -54,5 +55,34 @@ class TvKeyboardLayoutsTest {
         assertTrue(metrics.keyHeight >= 52.dp)
         assertTrue(metrics.keyHeight <= 64.dp)
         assertTrue(metrics.rowGap >= 4.dp)
+    }
+
+    @Test
+    fun symbolPageWrapsToTheLetterColumns() {
+        val sixColumns = symbolRowsFor(6)
+        assertEquals(6, sixColumns.columns)
+        assertEquals("123456", sixColumns.rows.first().joinToString("") { it.lower })
+        assertTrue(sixColumns.rows.all { it.size <= 6 })
+        val flat = symbolRowsFor(10).rows.flatten().map { it.lower }
+        assertTrue(flat.containsAll(listOf("-", "'", "&", ":", ".")))
+        assertTrue(flat.all { symbol -> flat.single { it == symbol } == symbol })
+    }
+
+    @Test
+    fun spaceNeverLeadsOrRepeats() {
+        assertEquals("", appendSpace(""))
+        assertEquals("Dune ", appendSpace("Dune"))
+        assertEquals("Dune ", appendSpace("Dune "))
+    }
+
+    @Test
+    fun hardwareKeysTypePrintableText() {
+        assertEquals("Ab", appendTyped("A", 'b'.code))
+        assertEquals("7", appendTyped("", '7'.code))
+        assertEquals("Ş", appendTyped("", 'Ş'.code))
+        assertEquals("Dune ", appendTyped("Dune", ' '.code))
+        assertNull(appendTyped("Dune", 0))
+        assertNull(appendTyped("Dune", '\n'.code))
+        assertNull(appendTyped("Dune", '\t'.code))
     }
 }

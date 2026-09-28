@@ -54,6 +54,34 @@ internal fun rowsFor(layout: TvSearchKeyboardLayout): KeyRows = when (layout) {
     )
 }
 
+/** Punctuation and digits for the `&123` page. Picked for titles like "Spider-Man" or "Grey's". */
+private const val SymbolKeys = "1234567890-'.,:;!?&@#$%()/+=\"*"
+
+/**
+ * The `&123` page, wrapped to the same column count as the letter layout so the grid keeps its
+ * width and D-pad columns line up when the viewer switches back.
+ */
+internal fun symbolRowsFor(columns: Int): KeyRows = KeyRows(
+    columns = columns,
+    rows = SymbolKeys.map { Glyph(lower = it.toString(), upper = it.toString()) }.chunked(columns),
+)
+
+/** Adds one space, but never at the start of the query or next to another space. */
+internal fun appendSpace(value: String): String =
+    if (value.isEmpty() || value.endsWith(" ")) value else "$value "
+
+/**
+ * The query after a hardware key press, or null when the key does not type text. Covers USB and
+ * Bluetooth keyboards, and the number pad found on many television remotes.
+ */
+internal fun appendTyped(value: String, codePoint: Int): String? {
+    if (codePoint <= 0 || !Character.isValidCodePoint(codePoint) || Character.isISOControl(codePoint)) {
+        return null
+    }
+    if (Character.isSpaceChar(codePoint)) return appendSpace(value)
+    return value + String(Character.toChars(codePoint))
+}
+
 internal fun deleteLastCodePoint(value: String): String {
     if (value.isEmpty()) return value
     val end = value.offsetByCodePoints(value.length, -1)
