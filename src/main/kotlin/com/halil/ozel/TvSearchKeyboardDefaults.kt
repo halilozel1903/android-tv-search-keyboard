@@ -10,31 +10,31 @@ import androidx.compose.ui.graphics.Shape
  * bare glyphs on the background, translucent grey controls, and a white key when it has focus.
  */
 @Immutable
-class TvSearchKeyboardColors(
-    val keyContainer: Color,
-    val keyContent: Color,
-    val keyFocusedContainer: Color,
-    val keyFocusedContent: Color,
-    val actionContainer: Color,
-    val actionContent: Color,
-    val actionBorder: Color,
-    val fieldContainer: Color,
-    val fieldContent: Color,
-    val fieldPlaceholder: Color,
-    val fieldBorder: Color,
-    val caret: Color,
-    val primaryContainer: Color,
-    val primaryContent: Color,
-    val primaryFocusedContainer: Color,
-    val chipContainer: Color,
-    val chipContent: Color,
-    val chipSelectedContainer: Color,
-    val chipSelectedBorder: Color,
+public class TvSearchKeyboardColors(
+    public val keyContainer: Color,
+    public val keyContent: Color,
+    public val keyFocusedContainer: Color,
+    public val keyFocusedContent: Color,
+    public val actionContainer: Color,
+    public val actionContent: Color,
+    public val actionBorder: Color,
+    public val fieldContainer: Color,
+    public val fieldContent: Color,
+    public val fieldPlaceholder: Color,
+    public val fieldBorder: Color,
+    public val caret: Color,
+    public val primaryContainer: Color,
+    public val primaryContent: Color,
+    public val primaryFocusedContainer: Color,
+    public val chipContainer: Color,
+    public val chipContent: Color,
+    public val chipSelectedContainer: Color,
+    public val chipSelectedBorder: Color,
 ) {
     /**
      * Returns a copy of this palette with the given roles replaced.
      */
-    fun copy(
+    public fun copy(
         keyContainer: Color = this.keyContainer,
         keyContent: Color = this.keyContent,
         keyFocusedContainer: Color = this.keyFocusedContainer,
@@ -128,11 +128,11 @@ class TvSearchKeyboardColors(
  * Corner shapes for [TvSearchKeyboard].
  */
 @Immutable
-class TvSearchKeyboardShapes(
-    val key: Shape,
-    val field: Shape,
-    val primary: Shape,
-    val chip: Shape,
+public class TvSearchKeyboardShapes(
+    public val key: Shape,
+    public val field: Shape,
+    public val primary: Shape,
+    public val chip: Shape,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -155,12 +155,12 @@ class TvSearchKeyboardShapes(
 /**
  * Dark television defaults for [TvSearchKeyboard].
  */
-object TvSearchKeyboardDefaults {
+public object TvSearchKeyboardDefaults {
     /**
      * Bare glyph keys, translucent grey controls, and a white focused key. Pass individual colors
      * to recolor a role.
      */
-    fun colors(
+    public fun colors(
         keyContainer: Color = Color(0x00FFFFFF),
         keyContent: Color = Color(0xFFF1F1F1),
         keyFocusedContainer: Color = Color(0xFFFFFFFF),
@@ -203,7 +203,7 @@ object TvSearchKeyboardDefaults {
     )
 
     /** Pill-shaped keys, field, search key, and chips. */
-    fun shapes(
+    public fun shapes(
         key: Shape = RoundedCornerShape(percent = 50),
         field: Shape = RoundedCornerShape(percent = 50),
         primary: Shape = RoundedCornerShape(percent = 50),

@@ -127,7 +127,7 @@ internal data class KeyboardMetrics(
  * @param requestInitialFocus When true, focus starts on the first letter key.
  */
 @Composable
-fun TvSearchKeyboard(
+public fun TvSearchKeyboard(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,

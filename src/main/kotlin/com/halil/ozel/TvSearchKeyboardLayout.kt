@@ -7,7 +7,7 @@ package com.halil.ozel
  * [Qwerty] is the English typewriter order. [Turkish] is the Turkish alphabet, with Ğ, Ü, Ş, İ,
  * Ö, Ç and both dotted and dotless i in their dictionary positions.
  */
-enum class TvSearchKeyboardLayout {
+public enum class TvSearchKeyboardLayout {
     Alphabetical,
     Qwerty,
     Turkish,
@@ -20,13 +20,13 @@ enum class TvSearchKeyboardLayout {
  * @param qwerty Label for [TvSearchKeyboardLayout.Qwerty].
  * @param turkish Label for [TvSearchKeyboardLayout.Turkish].
  */
-class TvSearchKeyboardLayoutLabels(
-    val alphabetical: String = "Alphabetical",
-    val qwerty: String = "QWERTY",
-    val turkish: String = "Turkish",
+public class TvSearchKeyboardLayoutLabels(
+    public val alphabetical: String = "Alphabetical",
+    public val qwerty: String = "QWERTY",
+    public val turkish: String = "Turkish",
 ) {
     /** Label for [layout]. */
-    fun labelFor(layout: TvSearchKeyboardLayout): String = when (layout) {
+    public fun labelFor(layout: TvSearchKeyboardLayout): String = when (layout) {
         TvSearchKeyboardLayout.Alphabetical -> alphabetical
         TvSearchKeyboardLayout.Qwerty -> qwerty
         TvSearchKeyboardLayout.Turkish -> turkish

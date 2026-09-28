@@ -37,6 +37,7 @@ android {
 }
 
 kotlin {
+    explicitApi()
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
     }
@@ -44,8 +45,9 @@ kotlin {
 
 dependencies {
     implementation(platform(libs.compose.bom))
-    implementation(libs.compose.ui)
-    implementation(libs.compose.foundation)
+    // Modifier, Color, and Shape appear in the public API, so consumers need these on their classpath.
+    api(libs.compose.ui)
+    api(libs.compose.foundation)
     implementation(libs.tv.material)
     implementation(libs.tv.foundation)
     testImplementation(libs.junit)
