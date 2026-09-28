@@ -97,6 +97,9 @@ private val Catalog = listOf(
     Title("Hit Man", "Movie, 2023"),
     Title("All of Us Strangers", "Movie, 2023"),
     Title("Perfect Days", "Movie, 2023"),
+    Title("Spider-Man: Across the Spider-Verse", "Movie, 2023"),
+    Title("Grey's Anatomy", "Series, 2005"),
+    Title("Mission: Impossible", "Movie, 1996"),
 )
 
 @Composable
